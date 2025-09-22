@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAMES Calculator 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e, #ffaaaa, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(255, 107, 107, 0.3);
+            border: 2px solid rgba(255, 107, 107, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 107, 107, 0.1), transparent);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ff4757;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 71, 87, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #ff6b6b;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 25px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ffaaaa;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .input-field::placeholder {
+            color: #ff9999;
+            opacity: 0.7;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff4757, #ff6b6b);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .result-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+            opacity: 0.7;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-field {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+
+            .calculate-btn {
+                padding: 12px;
+                font-size: 1.1rem;
+            }
+
+            .result-emoji {
+                font-size: 3rem;
+            }
+
+            .result-text {
+                font-size: 1.5rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ffaaaa;
+            border-top: 4px solid #ff4757;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts" id="hearts"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>FLAMES 💕</h1>
+            <p class="subtitle">Discover your relationship destiny!</p>
+        </div>
+
+        <form id="flamesForm">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="name1" 
+                    class="input-field" 
+                    placeholder="Your name 😊"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="name2" 
+                    class="input-field" 
+                    placeholder="Your crush's name 💘"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="calculate-btn">
+                Calculate FLAMES ✨
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #ff6b6b;">Calculating your destiny...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const flamesData = {
+            'F': {
+                name: 'Friends',
+                emoji: '👫',
+                description: 'You two are destined to be best friends forever! Your bond is strong and genuine.'
+            },
+            'L': {
+                name: 'Love',
+                emoji: '💕',
+                description: 'Love is in the air! You two are meant to be together romantically.'
+            },
+            'A': {
+                name: 'Affection',
+                emoji: '🥰',
+                description: 'There\'s a sweet affection between you two. A caring and warm relationship awaits!'
+            },
+            'M': {
+                name: 'Marriage',
+                emoji: '💒',
+                description: 'Wedding bells are ringing! You two are destined for marriage and a happy life together.'
+            },
+            'E': {
+                name: 'Enemy',
+                emoji: '😤',
+                description: 'Opposites attract, but maybe not this time! You might be better as friendly rivals.'
+            },
+            'S': {
+                name: 'Sister/Siblings',
+                emoji: '👭',
+                description: 'You two share a sibling-like bond! A protective and caring relationship is your destiny.'
+            }
+        };
+
+        function calculateFlames(name1, name2) {
+            // Convert names to lowercase and remove spaces
+            name1 = name1.toLowerCase().replace(/\s/g, '');
+            name2 = name2.toLowerCase().replace(/\s/g, '');
+            
+            // Create a combined string of both names
+            let combined = name1 + name2;
+            
+            // Remove common characters
+            let filteredName1 = name1;
+            let filteredName2 = name2;
+            
+            for (let char of name1) {
+                if (filteredName2.includes(char)) {
+                    filteredName1 = filteredName1.replace(char, '');
+                    filteredName2 = filteredName2.replace(char, '');
+                }
+            }
+            
+            // Count remaining characters
+            let totalCount = filteredName1.length + filteredName2.length;
+            
+            // FLAMES array
+            let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+            
+            // Reduce the array based on the count
+            while (flames.length > 1) {
+                let index = (totalCount - 1) % flames.length;
+                flames.splice(index, 1);
+            }
+            
+            return flames[0];
+        }
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts');
+            const heartSymbols = ['💕', '💖', '💗', '💝', '💘'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 800);
+        }
+
+        function displayResult(flameResult, name1, name2) {
+            const resultDiv = document.getElementById('result');
+            const data = flamesData[flameResult];
+            
+            resultDiv.innerHTML = `
+                <div class="result-emoji">${data.emoji}</div>
+                <div class="result-text">${data.name}</div>
+                <div class="result-description">
+                    <strong>${name1}</strong> & <strong>${name2}</strong><br>
+                    ${data.description}
+                </div>
+            `;
+            
+            resultDiv.classList.add('show');
+        }
+
+        document.getElementById('flamesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name1 = document.getElementById('name1').value.trim();
+            const name2 = document.getElementById('name2').value.trim();
+            
+            if (!name1 || !name2) {
+                alert('Please enter both names! 💕');
+                return;
+            }
+            
+            // Hide previous result
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('show');
+            
+            // Show loading
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.classList.add('show');
+            
+            // Simulate calculation delay for better UX
+            setTimeout(() => {
+                const result = calculateFlames(name1, name2);
+                
+                loadingDiv.classList.remove('show');
+                displayResult(result, name1, name2);
+            }, 1500);
+        });
+
+        // Initialize floating hearts
+        createFloatingHearts();
+
+        // Add input animation effects
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
