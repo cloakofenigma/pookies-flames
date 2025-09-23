@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FLAMES Calculator 💕</title>
+    
+    <!-- Google Analytics - REPLACE 'YOUR_MEASUREMENT_ID' with your actual GA4 Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=***REMOVED***"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '***REMOVED***');
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -445,9 +455,29 @@
             setTimeout(() => {
                 const result = calculateFlames(name1, name2);
                 
+                // Track FLAMES calculation event with Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'flames_calculation', {
+                        'event_category': 'engagement',
+                        'event_label': result,
+                        'custom_parameter_1': name1.length + name2.length, // total characters
+                        'custom_parameter_2': flamesData[result].name // result name
+                    });
+                }
+                
                 loadingDiv.classList.remove('show');
                 displayResult(result, name1, name2);
             }, 1500);
+        });
+
+        // Track page load event
+        window.addEventListener('load', function() {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'event_category': 'engagement',
+                    'event_label': 'flames_calculator_loaded'
+                });
+            }
         });
 
         // Initialize floating hearts
@@ -457,6 +487,14 @@
         document.querySelectorAll('.input-field').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'scale(1.02)';
+                
+                // Track input focus events
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'input_focus', {
+                        'event_category': 'user_interaction',
+                        'event_label': this.id
+                    });
+                }
             });
             
             input.addEventListener('blur', function() {
