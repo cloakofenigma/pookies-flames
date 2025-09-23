@@ -111,7 +111,6 @@
             color: #333;
             transition: all 0.3s ease;
             outline: none;
-            position: relative;
         }
 
         .input-field:focus {
@@ -258,17 +257,6 @@
             overflow: hidden;
         }
 
-        .name-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: cardShine 3s infinite;
-        }
-
         @keyframes nameGlow {
             0% { 
                 transform: scale(1);
@@ -278,11 +266,6 @@
                 transform: scale(1.05);
                 box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
             }
-        }
-
-        @keyframes cardShine {
-            0% { transform: rotate(0deg) translate(-100%, -100%); }
-            100% { transform: rotate(360deg) translate(100%, 100%); }
         }
 
         .vs-symbol {
@@ -313,6 +296,8 @@
             align-items: center;
             margin: 25px 0;
             position: relative;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .flame-letter {
@@ -325,34 +310,10 @@
             justify-content: center;
             font-size: 1.3rem;
             font-weight: bold;
-            margin: 0 8px;
             border: 2px solid rgba(255, 255, 255, 0.5);
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
             overflow: hidden;
-        }
-
-        .flame-letter::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-
-        .flame-letter:hover::before {
-            transform: translateX(100%);
-        }
-
-        .flame-letter.active {
-            animation: activePulse 1s infinite;
-            background: rgba(255, 255, 255, 0.5);
-            border-color: rgba(255, 255, 255, 0.8);
-            transform: scale(1.1);
         }
 
         .flame-letter.eliminating {
@@ -366,16 +327,6 @@
             color: #333;
             transform: scale(1.3);
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-        }
-
-        @keyframes activePulse {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 35px rgba(255, 255, 255, 0.9);
-                transform: scale(1.15);
-            }
         }
 
         @keyframes eliminate {
@@ -423,12 +374,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        .elimination-counter {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }
-
         .result {
             margin-top: 30px;
             padding: 30px;
@@ -446,22 +391,6 @@
         .result.show {
             opacity: 1;
             transform: translateY(0) scale(1);
-        }
-
-        .result::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: resultShine 4s infinite;
-        }
-
-        @keyframes resultShine {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .result-content {
@@ -583,7 +512,6 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
-                margin: 0 5px;
             }
 
             .result-emoji {
@@ -658,7 +586,6 @@
             </div>
             
             <div class="progress-text" id="progressText"></div>
-            <div class="elimination-counter" id="eliminationCounter"></div>
         </div>
 
         <div class="result" id="result"></div>
@@ -700,7 +627,7 @@
 
         // Enhanced FLAMES calculation with frequency-based character removal
         function calculateFlamesAdvanced(name1, name2) {
-            // Step 1: Normalize inputs
+            // Step 1: Normalize inputs - remove non-letters and convert to lowercase
             const cleanName1 = name1.toLowerCase().replace(/[^a-z]/g, '');
             const cleanName2 = name2.toLowerCase().replace(/[^a-z]/g, '');
             
@@ -708,10 +635,11 @@
                 throw new Error("Names must contain at least one letter");
             }
             
-            // Step 2: Create frequency maps
+            // Step 2: Create frequency maps for each character
             const freq1 = {};
             const freq2 = {};
             
+            // Count frequency of each character in both names
             for (let char of cleanName1) {
                 freq1[char] = (freq1[char] || 0) + 1;
             }
@@ -720,7 +648,7 @@
                 freq2[char] = (freq2[char] || 0) + 1;
             }
             
-            // Step 3: Remove common characters by frequency
+            // Step 3: Calculate remaining characters after removing common ones
             let remainingCount = 0;
             const allChars = new Set([...Object.keys(freq1), ...Object.keys(freq2)]);
             
@@ -729,17 +657,18 @@
                 const freq2Count = freq2[char] || 0;
                 const commonCount = Math.min(freq1Count, freq2Count);
                 
-                // Add remaining frequencies to the count
+                // Add remaining frequencies after cancellation
                 remainingCount += (freq1Count - commonCount) + (freq2Count - commonCount);
             }
             
-            // Step 4: FLAMES elimination with circular logic
+            // Step 4: FLAMES circular elimination
             let flamesList = ['F', 'L', 'A', 'M', 'E', 'S'];
             let currentIndex = 0;
             let eliminationSteps = [];
             
             while (flamesList.length > 1) {
-                // Handle zero count case - remove the element just before current index
+                // Calculate elimination position using modular arithmetic
+                // For zero count, remove the element just before current index
                 const eliminationPos = remainingCount === 0 ? 
                     (currentIndex - 1 + flamesList.length) % flamesList.length :
                     (currentIndex + remainingCount - 1) % flamesList.length;
@@ -750,7 +679,10 @@
                     position: eliminationPos
                 });
                 
+                // Remove the eliminated letter
                 flamesList.splice(eliminationPos, 1);
+                
+                // Update current index for next iteration
                 currentIndex = eliminationPos % flamesList.length;
             }
             
@@ -758,8 +690,6 @@
                 result: flamesList[0],
                 remainingCount: remainingCount,
                 eliminationSteps: eliminationSteps,
-                freq1: freq1,
-                freq2: freq2,
                 cleanName1: cleanName1,
                 cleanName2: cleanName2
             };
@@ -768,10 +698,11 @@
         function validateNames(name1, name2) {
             const errors = [];
             
-            // Basic validation
+            // Trim whitespace
             name1 = name1.trim();
             name2 = name2.trim();
             
+            // Basic validation
             if (!name1 || !name2) {
                 errors.push("Both names are required!");
                 return { isValid: false, errors, name1, name2 };
@@ -782,17 +713,17 @@
                 return { isValid: false, errors, name1, name2 };
             }
             
-            // Check for letters
+            // Check for at least one letter in each name
             if (!/[a-zA-Z]/.test(name1) || !/[a-zA-Z]/.test(name2)) {
                 errors.push("Names must contain at least one letter!");
                 return { isValid: false, errors, name1, name2 };
             }
             
-            // Normalize for comparison
+            // Normalize for comparison (remove non-letters, convert to lowercase)
             const clean1 = name1.toLowerCase().replace(/[^a-z]/g, '');
             const clean2 = name2.toLowerCase().replace(/[^a-z]/g, '');
             
-            // Check for identical names (exact match after cleaning)
+            // Check for identical names
             if (clean1 === clean2) {
                 errors.push("🚫 Identical names detected! Please enter two different names to discover your unique relationship destiny.");
                 return { isValid: false, errors, name1, name2 };
@@ -815,6 +746,7 @@
             const maxLen = Math.max(str1.length, str2.length);
             let matches = 0;
             
+            // Count matching characters at same positions
             for (let i = 0; i < Math.min(str1.length, str2.length); i++) {
                 if (str1[i] === str2[i]) matches++;
             }
@@ -877,4 +809,59 @@
         async function showCalculationAnimation(name1, name2, calculationData) {
             const container = document.getElementById('container');
             const animation = document.getElementById('calculationAnimation');
-            const nameCard1 = document.getElementById('nameCar
+            const nameCard1 = document.getElementById('nameCard1');
+            const nameCard2 = document.getElementById('nameCard2');
+            const characterAnalysis = document.getElementById('characterAnalysis');
+            const progressText = document.getElementById('progressText');
+            const flamesCircle = document.getElementById('flamesCircle');
+            
+            // Set up animation
+            container.classList.add('calculating');
+            nameCard1.textContent = name1;
+            nameCard2.textContent = name2;
+            
+            // Show character analysis
+            characterAnalysis.innerHTML = `
+                <strong>🔍 Character Analysis:</strong><br>
+                "${name1}" has ${calculationData.cleanName1.length} letters<br>
+                "${name2}" has ${calculationData.cleanName2.length} letters<br>
+                Remaining after cancellation: ${calculationData.remainingCount} letters
+            `;
+            
+            animation.classList.add('show');
+            
+            // Reset flame letters
+            const flameLetters = flamesCircle.querySelectorAll('.flame-letter');
+            flameLetters.forEach(letter => {
+                letter.classList.remove('eliminating', 'winner');
+            });
+            
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    progressText.textContent = "🔮 The magic begins...";
+                    
+                    setTimeout(() => {
+                        progressText.textContent = "⚡ Eliminating possibilities...";
+                        
+                        // Animate eliminations
+                        let step = 0;
+                        const animateElimination = () => {
+                            if (step < calculationData.eliminationSteps.length) {
+                                const elimination = calculationData.eliminationSteps[step];
+                                progressText.textContent = `Eliminating "${elimination.eliminated}"... (${calculationData.eliminationSteps.length - step} left)`;
+                                
+                                // Find and eliminate the letter
+                                const letterElement = [...flameLetters].find(el => 
+                                    el.dataset.letter === elimination.eliminated && 
+                                    !el.classList.contains('eliminating')
+                                );
+                                
+                                if (letterElement) {
+                                    letterElement.classList.add('eliminating');
+                                }
+                                
+                                step++;
+                                setTimeout(animateElimination, 800);
+                            } else {
+                                // Show winner
+                                progressText.textContent = "🎉 Destiny revealed!
